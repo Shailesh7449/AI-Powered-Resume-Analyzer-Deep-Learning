@@ -1,0 +1,6 @@
+{
+  "name": "ResumeAI – Intelligent Resume Analyzer and Career Assistant",
+  "description": "Intelligent resume analyzer with explainable ATS scoring, transformer-based semantic job matching, skill gap detection, section-wise AI editor, and interactive career assistant.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
