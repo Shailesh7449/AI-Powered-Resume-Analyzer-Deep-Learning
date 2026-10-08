@@ -1,6 +1,7 @@
 import React, { useRef, useState } from "react";
 import { Upload, FileText, CheckCircle2, RefreshCw, AlertCircle, Sparkles } from "lucide-react";
 import { SAMPLE_RESUMES, SampleResume } from "../sampleData";
+import { getApiUrl } from "../api";
 
 interface ResumeInputProps {
   resumeText: string;
@@ -32,7 +33,7 @@ export const ResumeInput: React.FC<ResumeInputProps> = ({
     formData.append("file", file);
 
     try {
-      const response = await fetch("/api/parse-resume", {
+      const response = await fetch(getApiUrl("/api/parse-resume"), {
         method: "POST",
         body: formData,
       });

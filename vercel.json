@@ -1,27 +1,10 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "services": {
-    "app": {
-      "root": ".",
-      "framework": "vite"
-    },
-    "ml-service": {
-      "root": "ml-service",
-      "framework": "fastapi"
-    }
-  },
+  "framework": "vite",
   "rewrites": [
     {
-      "source": "/api/:path*",
-      "destination": {
-        "service": "ml-service"
-      }
-    },
-    {
       "source": "/(.*)",
-      "destination": {
-        "service": "app"
-      }
+      "destination": "/index.html"
     }
   ]
 }

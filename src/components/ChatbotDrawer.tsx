@@ -11,6 +11,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { AnalysisResult, ChatMessage } from "../types";
+import { getApiUrl } from "../api";
 
 interface ChatbotDrawerProps {
   isOpen: boolean;
@@ -70,7 +71,7 @@ export const ChatbotDrawer: React.FC<ChatbotDrawerProps> = ({
     setIsLoading(true);
 
     try {
-      const response = await fetch("/api/gemini/chat", {
+      const response = await fetch(getApiUrl("/api/gemini/chat"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

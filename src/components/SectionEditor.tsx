@@ -11,6 +11,7 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import { ResumeSectionId, ResumeSectionItem } from "../types";
+import { getApiUrl } from "../api";
 
 interface SectionEditorProps {
   resumeText: string;
@@ -156,7 +157,7 @@ export const SectionEditor: React.FC<SectionEditorProps> = ({
   const generateAiImprovements = async (contentToImprove: string) => {
     setIsGeneratingAi(true);
     try {
-      const response = await fetch("/api/gemini/edit-section", {
+      const response = await fetch(getApiUrl("/api/gemini/edit-section"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

@@ -11,7 +11,8 @@ import { ChatbotDrawer } from "./components/ChatbotDrawer";
 import { HowItWorksModal } from "./components/HowItWorksModal";
 import { SAMPLE_RESUMES, SAMPLE_JOB_DESCRIPTIONS, SampleResume, SampleJobDescription } from "./sampleData";
 import { AnalysisResult } from "./types";
-import { Sparkles, AlertCircle, FileText, Cpu, Layers, Edit3 } from "lucide-react";
+import { Sparkles, AlertCircle, FileText, Cpu, Layers, Edit3, WifiOff } from "lucide-react";
+import { getApiUrl, getApiBaseUrl } from "./api";
 
 export default function App() {
   // Preset defaults (Alexander Chen + ML Engineer Job)
@@ -33,8 +34,11 @@ export default function App() {
 
   // Check ML service health on startup
   useEffect(() => {
-    fetch("/api/ml-health")
-      .then((res) => res.json())
+    fetch(getApiUrl("/api/ml-health"))
+      .then((res) => {
+        if (!res.ok) throw new Error("Health check returned non-200");
+        return res.json();
+      })
       .then((data) => {
         setMlServiceStatus(data.status || "healthy");
       })
@@ -55,7 +59,7 @@ export default function App() {
     setAnalysisError(null);
 
     try {
-      const response = await fetch("/api/analyze", {
+      const response = await fetch(getApiUrl("/api/analyze"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -66,14 +70,20 @@ export default function App() {
 
       if (!response.ok) {
         const errText = await response.text();
-        throw new Error(errText || "Analysis failed");
+        throw new Error(errText || `Analysis request failed with status ${response.status}`);
       }
 
       const data: AnalysisResult = await response.json();
       setAnalysis(data);
+      setMlServiceStatus("healthy");
     } catch (err: any) {
       console.error("Analysis error:", err);
-      setAnalysisError(err.message || "Failed to analyze resume with Deep Learning engine");
+      const targetUrl = getApiBaseUrl() || "http://localhost:5001";
+      setAnalysisError(
+        `Unable to reach Python ML Service at ${targetUrl}. ` +
+        `Please ensure the FastAPI backend is running and CORS is enabled. (${err.message})`
+      );
+      setMlServiceStatus("offline");
     } finally {
       setIsAnalyzing(false);
     }
@@ -130,11 +140,26 @@ export default function App() {
               />
             </div>
 
-            {/* Error Notification */}
+            {/* Error & Offline Notification */}
             {analysisError && (
               <div className="p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-center space-x-2">
                 <AlertCircle className="w-4 h-4 shrink-0" />
                 <span>{analysisError}</span>
+              </div>
+            )}
+
+            {!analysisError && mlServiceStatus === "offline" && (
+              <div className="p-3.5 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-xs flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <WifiOff className="w-4 h-4 text-amber-600 shrink-0" />
+                  <span>
+                    <strong>ML Service Offline:</strong> Cannot reach the FastAPI backend at{" "}
+                    <code className="bg-amber-100 px-1 py-0.5 rounded font-mono text-[11px]">
+                      {getApiBaseUrl() || "http://localhost:5001"}
+                    </code>
+                    . Configure <code>VITE_ML_API_URL</code> for production deployment.
+                  </span>
+                </div>
               </div>
             )}
 
